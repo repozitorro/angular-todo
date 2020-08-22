@@ -1,5 +1,3 @@
-// тестовые данные в виде массивов (заменяют таблицы БД)
-
 import {Category} from '../model/Category';
 import {Priority} from '../model/Priority';
 import {Task} from '../model/Task';
@@ -28,8 +26,6 @@ export class TestData {
         {id: 4, title: 'Очень срочно!!', color: '#F1128D'}
     ];
 
-
-    // не забывать - индексация приоритетов и категорий начинается с нуля
     static tasks: Task[] = [
         {
             id: 1,

@@ -1,18 +1,22 @@
-import {Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {DataHandlerService} from "../../service/data-handler.service";
 import {Task} from 'src/app/model/Task';
 import {MatTableDataSource} from "@angular/material/table";
+import {MatPaginator} from "@angular/material/paginator";
+import {MatSort} from "@angular/material/sort";
 
 @Component({
     selector: 'app-tasks',
     templateUrl: './tasks.component.html',
     styleUrls: ['./tasks.component.css']
 })
-export class TasksComponent implements OnInit {
+export class TasksComponent implements OnInit, AfterViewInit {
 
-    // поля для таблицы (те, что отображают данные из задачи - должны совпадать с названиями переменных класса)
     private displayedColumns: string[] = ['color', 'id', 'title', 'date', 'priority', 'category'];
-    private dataSource: MatTableDataSource<Task>; // контейнер - источник данных для таблицы
+    private dataSource: MatTableDataSource<Task>;
+
+    @ViewChild(MatPaginator, {static: false}) private paginator: MatPaginator
+    @ViewChild(MatSort, {static: false}) private sort: MatSort
 
     tasks: Task[];
 
@@ -22,20 +26,21 @@ export class TasksComponent implements OnInit {
     ngOnInit() {
         this.dataHandler.taskSubject.subscribe(tasks => this.tasks = tasks);
 
-        // датасорс обязательно нужно создавать для таблицы, в него присваивается любой источник (БД, массивы, JSON и пр.)
         this.dataSource = new MatTableDataSource();
 
         this.refreshTable();
     }
 
-    toggleTaskCompleted(task: Task) {
-        task.completed = !task.completed
+    ngAfterViewInit(): void {
+        this.addTableObject()
     }
 
-    // в зависимости от статуса задачи - вернуть цвет названия
+    // toggleTaskCompleted(task: Task) {
+    //     task.completed = !task.completed
+    // }
+
     private getPriorityColor(task: Task) {
 
-        // цвет завершенной задачи
         if (task.completed) {
             return '#F8F9FA';
         }
@@ -48,11 +53,31 @@ export class TasksComponent implements OnInit {
 
     }
 
-    // показывает задачи с применением всех текущий условий (категория, поиск, фильтры и пр.)
     private refreshTable() {
+        this.dataSource.data = this.tasks;
+        this.addTableObject()
 
-        this.dataSource.data = this.tasks; // обновить источник данных (т.к. данные массива tasks обновились)
+        this.dataSource.sortingDataAccessor = (task, colName) => {
+            switch (colName) {
+                case 'priority': {
+                    return task.priority ? task.priority.id : null
+                }
+                case 'category': {
+                    return task.category ? task.category.title : null
+                }
+                case 'date': {
+                    return task.date ? task.date : null
+                }
+                case 'title': {
+                    return task.title
+                }
+            }
+        }
 
+    }
 
+    private addTableObject() {
+        this.dataSource.sort = this.sort
+        this.dataSource.paginator = this.paginator
     }
 }
