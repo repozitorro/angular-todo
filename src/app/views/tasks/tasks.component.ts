@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, Input, OnInit, ViewChild} from '@angular/core';
 import {DataHandlerService} from "../../service/data-handler.service";
 import {Task} from 'src/app/model/Task';
 import {MatTableDataSource} from "@angular/material/table";
@@ -17,27 +17,23 @@ export class TasksComponent implements OnInit, AfterViewInit {
 
     @ViewChild(MatPaginator, {static: false}) private paginator: MatPaginator
     @ViewChild(MatSort, {static: false}) private sort: MatSort
+    @Input()
 
-    tasks: Task[];
+    private tasks: Task[];
 
-    constructor(private dataHandler: DataHandlerService) {
+    constructor() {
     }
 
     ngOnInit() {
-        this.dataHandler.getAllTasks().subscribe(tasks => this.tasks = tasks);
 
         this.dataSource = new MatTableDataSource();
 
-        this.refreshTable();
+        this.fillTable();
     }
 
     ngAfterViewInit(): void {
         this.addTableObject()
     }
-
-    // toggleTaskCompleted(task: Task) {
-    //     task.completed = !task.completed
-    // }
 
     private getPriorityColor(task: Task) {
 
@@ -53,7 +49,7 @@ export class TasksComponent implements OnInit, AfterViewInit {
 
     }
 
-    private refreshTable() {
+    private fillTable() {
         this.dataSource.data = this.tasks;
         this.addTableObject()
 
